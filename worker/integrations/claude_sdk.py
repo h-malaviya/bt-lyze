@@ -7,23 +7,27 @@ from pydantic import BaseModel, Field
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential_jitter
 
 from api.app.schemas.candidates import CandidateCategory
-from worker.integrations.evaluation_prompt import EVALUATION_RUBRIC
+from worker.integrations.interview_flow_prompt import (
+    INTERVIEW_FLOW_RUBRIC,
+    INTERVIEW_PROMPT_VERSION,
+)
 
 
 class CategoryScore(BaseModel):
-    score: float = Field(ge=0, le=10)
+    score: int = Field(ge=1, le=5)
     rationale: str = Field(min_length=1)
 
 
 class EvaluationScores(BaseModel):
-    technical: CategoryScore
-    communication: CategoryScore
-    problem_solving: CategoryScore
-    culture: CategoryScore
+    project_deep_dive: CategoryScore
+    fundamentals: CategoryScore
+    live_problem: CategoryScore
+    learning_ability_and_trends: CategoryScore
+    candidate_questions: CategoryScore
 
 
 class EvaluationContent(BaseModel):
-    overall_score: float = Field(ge=0, le=10)
+    overall_score: int = Field(ge=1, le=5)
     scores: EvaluationScores
     summary: str = Field(min_length=1)
     strengths: list[str]
@@ -51,8 +55,9 @@ _EVALUATION_SCHEMA = json.dumps(
     sort_keys=True,
 )
 _EVALUATION_SYSTEM_PROMPT = (
+    f"Prompt version: {INTERVIEW_PROMPT_VERSION}\n"
     "You are an interview evaluation engine. Follow this fixed rubric exactly.\n\n"
-    f"{EVALUATION_RUBRIC}\n\n"
+    f"{INTERVIEW_FLOW_RUBRIC}\n\n"
     "The JSON must conform exactly to this schema:\n"
     f"{_EVALUATION_SCHEMA}"
 )

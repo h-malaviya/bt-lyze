@@ -153,7 +153,7 @@ create table if not exists public.evaluations (
   recording_id uuid not null references public.recordings(id) on delete cascade,
   version integer not null default 1 check (version > 0),
   is_current boolean not null default true,
-  overall_score numeric(4, 1) check (overall_score between 0 and 10),
+  overall_score smallint check (overall_score between 1 and 5),
   scores jsonb not null,
   summary text not null,
   strengths text[] not null default '{}',

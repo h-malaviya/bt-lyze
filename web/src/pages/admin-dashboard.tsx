@@ -91,10 +91,9 @@ export function AdminDashboard() {
           <label className="sr-only" htmlFor="admin-score-filter">Filter by overall score</label>
           <select id="admin-score-filter" value={scoreBand} onChange={(event) => setScoreBand(event.target.value as ScoreBand | "")} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/65 outline-none focus:border-moss">
             <option value="">All scores</option>
-            <option value="8_to_10">8.0–10.0</option>
-            <option value="6_to_7_99">6.0–7.9</option>
-            <option value="4_to_5_99">4.0–5.9</option>
-            <option value="0_to_3_99">Below 4.0</option>
+            <option value="4_to_5">4–5</option>
+            <option value="3">3</option>
+            <option value="1_to_2">1–2</option>
             <option value="unscored">Not scored</option>
           </select>
           <button type="button" onClick={clearFilters} disabled={!filtersActive} className="rounded-xl border border-ink/10 px-4 py-3 text-sm font-bold text-ink/60 transition hover:bg-fog disabled:opacity-35">Clear</button>

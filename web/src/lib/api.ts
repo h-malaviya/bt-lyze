@@ -13,7 +13,7 @@ export type JobStage =
   | "failed";
 export type Recommendation = "selected" | "not_selected" | "borderline";
 export type StorageProvider = "supabase" | "azure";
-export type ScoreBand = "8_to_10" | "6_to_7_99" | "4_to_5_99" | "0_to_3_99" | "unscored";
+export type ScoreBand = "4_to_5" | "3" | "1_to_2" | "unscored";
 
 export interface CurrentUser {
   id: string;
@@ -157,6 +157,11 @@ export interface AdminCandidateFilters {
   score_band?: ScoreBand;
 }
 
+export interface AdminRecordingPlayback {
+  url: string;
+  expires_at: string;
+}
+
 export interface AdminCandidateListResponse {
   items: AdminCandidate[];
   total: number;
@@ -250,6 +255,13 @@ export async function listAdminCandidates(
 export async function getAdminCandidate(candidateId: string): Promise<AdminCandidateDetail> {
   const response = await authorizedFetch(`/api/admin/candidates/${candidateId}`);
   return (await response.json()) as AdminCandidateDetail;
+}
+
+export async function getAdminRecordingPlayback(
+  recordingId: string,
+): Promise<AdminRecordingPlayback> {
+  const response = await authorizedFetch(`/api/admin/recordings/${recordingId}/playback`);
+  return (await response.json()) as AdminRecordingPlayback;
 }
 
 const maximumRecordingBytes = 500 * 1024 * 1024;

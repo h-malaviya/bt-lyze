@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from api.app.schemas.candidates import CandidateCategory, JobStage, StorageProvider, Verdict
 
 Recommendation = Literal["selected", "not_selected", "borderline"]
-ScoreBand = Literal["8_to_10", "6_to_7_99", "4_to_5_99", "0_to_3_99", "unscored"]
+ScoreBand = Literal["4_to_5", "3", "1_to_2", "unscored"]
 
 
 class AdminMetrics(BaseModel):
@@ -93,6 +93,11 @@ class AdminRecordingDetail(BaseModel):
     last_error: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class AdminRecordingPlayback(BaseModel):
+    url: str
+    expires_at: datetime
 
 
 class AdminJobEvent(BaseModel):

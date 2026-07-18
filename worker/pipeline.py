@@ -18,6 +18,7 @@ from api.app.schemas.candidates import CandidateCategory, StorageProvider
 from api.app.services.recording_storage import create_azure_read_url
 from worker.integrations.claude_sdk import EvaluationResult
 from worker.integrations.deepgram import DeepgramTranscriber
+from worker.integrations.interview_flow_prompt import INTERVIEW_PROMPT_VERSION
 
 logger = structlog.get_logger()
 RETRY_DELAYS_SECONDS = (30, 120)
@@ -298,7 +299,7 @@ async def save_evaluation(
                   recording_id, version, overall_score, scores, summary, strengths,
                   concerns, recommendation, prompt_version, model, token_usage
                 ) values (
-                  $1, $2, $3, $4::jsonb, $5, $6, $7, $8, 'interview-v2', $9, $10::jsonb
+                  $1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, $11::jsonb
                 )
                 """,
                 recording_id,
@@ -309,6 +310,7 @@ async def save_evaluation(
                 evaluation.strengths,
                 evaluation.concerns,
                 evaluation.recommendation,
+                INTERVIEW_PROMPT_VERSION,
                 settings.claude_model,
                 json.dumps(evaluation.token_usage.model_dump(mode="json")),
             )

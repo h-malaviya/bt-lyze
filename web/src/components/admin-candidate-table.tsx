@@ -46,7 +46,9 @@ export function AdminCandidateTable({ candidates, onSelect }: AdminCandidateTabl
                 </span>
               </td>
               <td className="px-4 py-4 text-sm font-bold text-moss">
-                {candidate.overall_score === null ? "—" : candidate.overall_score.toFixed(1)}
+                {candidate.overall_score === null
+                  ? "—"
+                  : `${Math.round(candidate.overall_score)}/5`}
               </td>
               <td className="px-4 py-4">
                 {candidate.recommendation ? (

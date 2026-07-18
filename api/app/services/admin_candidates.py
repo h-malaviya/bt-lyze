@@ -49,12 +49,9 @@ where (
   and ($4::text is null or current_evaluation.recommendation = $4)
   and (
     $5::text is null
-    or ($5 = '8_to_10' and current_evaluation.overall_score >= 8)
-    or ($5 = '6_to_7_99' and current_evaluation.overall_score >= 6
-        and current_evaluation.overall_score < 8)
-    or ($5 = '4_to_5_99' and current_evaluation.overall_score >= 4
-        and current_evaluation.overall_score < 6)
-    or ($5 = '0_to_3_99' and current_evaluation.overall_score < 4)
+    or ($5 = '4_to_5' and current_evaluation.overall_score >= 4)
+    or ($5 = '3' and current_evaluation.overall_score = 3)
+    or ($5 = '1_to_2' and current_evaluation.overall_score between 1 and 2)
     or ($5 = 'unscored' and current_evaluation.overall_score is null)
   )
 """

@@ -239,14 +239,12 @@ async def run() -> int:
             admin_token = admin_sign_in.json()["access_token"]
             admin_headers = {"Authorization": f"Bearer {admin_token}"}
             overall_score = float(pipeline["overall_score"])
-            if overall_score >= 8:
-                score_band = "8_to_10"
-            elif overall_score >= 6:
-                score_band = "6_to_7_99"
-            elif overall_score >= 4:
-                score_band = "4_to_5_99"
+            if overall_score >= 4:
+                score_band = "4_to_5"
+            elif overall_score == 3:
+                score_band = "3"
             else:
-                score_band = "0_to_3_99"
+                score_band = "1_to_2"
 
             admin_list = await client.get(
                 f"{LOCAL_APP_URL}/api/admin/candidates",
@@ -285,7 +283,7 @@ async def run() -> int:
                 ),
                 "admin_detail_loaded": (
                     admin_detail_payload["transcript"]["text"] == pipeline["transcript"]
-                    and len(admin_detail_payload["evaluation"]["scores"]) == 4
+                    and len(admin_detail_payload["evaluation"]["scores"]) == 5
                     and admin_detail_payload["evaluation"]["model"] == "claude-sonnet-4-6"
                     and bool(admin_detail_payload["events"])
                 ),

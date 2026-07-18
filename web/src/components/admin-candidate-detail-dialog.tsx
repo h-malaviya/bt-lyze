@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { getAdminCandidate, type AdminCandidateDetail } from "../lib/api";
+import {
+  getAdminCandidate,
+  getAdminRecordingPlayback,
+  type AdminCandidateDetail,
+} from "../lib/api";
 import {
   categoryLabels,
   formatBytes,
@@ -18,6 +22,45 @@ interface AdminCandidateDetailDialogProps {
   onClose: () => void;
 }
 
+const maximumSectionPoints = 4;
+const markdownBulletPrefix = /^[-*\u2022\u2013\u2014]\s+/;
+
+function sectionPoints(content: string): string[] {
+  const normalizedContent = content.replaceAll("\\n", "\n").trim();
+  const markdownPoints = normalizedContent
+    .split(/\r?\n|(?=\s+[-*\u2022\u2013\u2014]\s+)/)
+    .map((point) => point.trim().replace(markdownBulletPrefix, ""))
+    .filter(Boolean);
+  const points = markdownPoints.length > 1
+    ? markdownPoints
+    : normalizedContent.match(/[^.!?]+(?:[.!?]+|$)/g) ?? [];
+
+  return points
+    .map((point) => point.trim().replace(markdownBulletPrefix, ""))
+    .filter(Boolean)
+    .slice(0, maximumSectionPoints);
+}
+
+function itemPoints(items: string[]): string[] {
+  return items
+    .flatMap(sectionPoints)
+    .slice(0, maximumSectionPoints);
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="mb-0 mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-ink/65 marker:text-moss">
+      {items.map((point, index) => <li key={`${index}-${point}`}>{point}</li>)}
+    </ul>
+  );
+}
+
+function categoryTitle(category: string): string {
+  return category
+    .trim()
+    .replaceAll("_", " ");
+}
+
 function EvaluationView({ candidate }: { candidate: AdminCandidateDetail }) {
   const evaluation = candidate.evaluation;
   if (!evaluation) {
@@ -29,6 +72,7 @@ function EvaluationView({ candidate }: { candidate: AdminCandidateDetail }) {
       </section>
     );
   }
+  const summary = sectionPoints(evaluation.summary);
 
   return (
     <div className="space-y-5">
@@ -36,7 +80,9 @@ function EvaluationView({ candidate }: { candidate: AdminCandidateDetail }) {
         <div>
           <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-white/60">Overall score</p>
           <p className="display-font mb-0 mt-1 text-4xl font-bold">
-            {evaluation.overall_score?.toFixed(1) ?? "—"}
+            {evaluation.overall_score === null
+              ? "—"
+              : `${Math.round(evaluation.overall_score)}/5`}
           </p>
         </div>
         <div className="sm:text-right">
@@ -57,10 +103,10 @@ function EvaluationView({ candidate }: { candidate: AdminCandidateDetail }) {
           {Object.entries(evaluation.scores).map(([category, score]) => (
             <article key={category} className="rounded-2xl border border-ink/10 bg-white p-4">
               <div className="flex items-center justify-between gap-3">
-                <h4 className="m-0 capitalize text-sm font-bold text-ink">{category.replace("_", " ")}</h4>
-                <span className="text-lg font-bold text-moss">{score.score.toFixed(1)}</span>
+                <h4 className="m-0 capitalize text-sm font-bold text-ink">{categoryTitle(category)}</h4>
+                <span className="text-lg font-bold text-moss">{Math.round(score.score)}/5</span>
               </div>
-              <p className="mb-0 mt-2 text-sm leading-6 text-ink/60">{score.rationale}</p>
+              <BulletList items={sectionPoints(score.rationale)} />
             </article>
           ))}
         </div>
@@ -68,7 +114,7 @@ function EvaluationView({ candidate }: { candidate: AdminCandidateDetail }) {
 
       <section className="rounded-2xl border border-ink/10 bg-fog p-5">
         <h3 className="m-0 text-base font-bold text-ink">Summary</h3>
-        <p className="mb-0 mt-3 text-sm leading-6 text-ink/65">{evaluation.summary}</p>
+        <BulletList items={summary} />
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
@@ -101,13 +147,13 @@ function TokenMetric({ label, value }: { label: string; value: number }) {
 }
 
 function EvidenceList({ title, items, tone }: { title: string; items: string[]; tone: string }) {
+  const points = itemPoints(items);
+
   return (
     <article className="rounded-2xl border border-ink/10 bg-white p-5">
       <h3 className={`m-0 text-base font-bold ${tone}`}>{title}</h3>
-      {items.length ? (
-        <ul className="mb-0 mt-3 space-y-2 pl-5 text-sm leading-6 text-ink/65">
-          {items.map((item) => <li key={item}>{item}</li>)}
-        </ul>
+      {points.length ? (
+        <BulletList items={points} />
       ) : <p className="mb-0 mt-3 text-sm text-ink/40">None recorded</p>}
     </article>
   );
@@ -115,6 +161,12 @@ function EvidenceList({ title, items, tone }: { title: string; items: string[]; 
 
 function RecordingView({ candidate }: { candidate: AdminCandidateDetail }) {
   const recording = candidate.recording;
+  const playbackQuery = useQuery({
+    queryKey: ["admin-recording-playback", recording?.id],
+    queryFn: () => getAdminRecordingPlayback(recording!.id),
+    enabled: Boolean(recording),
+    staleTime: 60 * 60 * 1000,
+  });
   if (!recording) return <p className="text-sm text-ink/45">No recording attached.</p>;
   return (
     <section className="rounded-2xl border border-ink/10 bg-white p-5">
@@ -137,6 +189,37 @@ function RecordingView({ candidate }: { candidate: AdminCandidateDetail }) {
           {recording.last_error}
         </p>
       )}
+      <div className="mt-5 border-t border-ink/10 pt-5">
+        <p className="mb-2 mt-0 text-xs font-bold uppercase tracking-[0.12em] text-ink/45">
+          Listen to interview
+        </p>
+        {playbackQuery.isPending ? (
+          <p className="m-0 text-sm font-semibold text-ink/45">Preparing audio player...</p>
+        ) : playbackQuery.isError ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="m-0 text-sm font-semibold text-red-700">
+              {playbackQuery.error.message}
+            </p>
+            <button
+              type="button"
+              onClick={() => void playbackQuery.refetch()}
+              className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50"
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
+          <audio
+            controls
+            preload="metadata"
+            src={playbackQuery.data.url}
+            aria-label={`Interview recording for ${candidate.full_name}`}
+            className="block h-11 w-full"
+          >
+            Your browser does not support audio playback.
+          </audio>
+        )}
+      </div>
     </section>
   );
 }
