@@ -1,0 +1,15 @@
+.env
+.venv/
+.uv-cache/
+__pycache__/
+.pytest_cache/
+.pytest-tmp/
+.ruff_cache/
+*.py[cod]
+web/node_modules/
+web/dist/
+web/*.tsbuildinfo
+web/vite.config.js
+web/vite.config.d.ts
+.DS_Store
+logs/

@@ -1,0 +1,76 @@
+services:
+  web:
+    build:
+      target: development
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "80"]
+    environment:
+      API_PROXY_TARGET: http://api:8000
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+    develop:
+      watch:
+        - action: sync
+          path: ./web
+          target: /app
+          ignore:
+            - node_modules/
+            - dist/
+            - package.json
+            - package-lock.json
+            - Dockerfile
+        - action: rebuild
+          path: ./web/package.json
+        - action: rebuild
+          path: ./web/package-lock.json
+        - action: rebuild
+          path: ./web/Dockerfile
+
+  api:
+    command:
+      - uv
+      - run
+      - uvicorn
+      - api.app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+      - --reload-dir
+      - /app/api
+    develop:
+      watch:
+        - action: sync
+          path: ./api
+          target: /app/api
+        - action: rebuild
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
+        - action: rebuild
+          path: ./api/Dockerfile
+
+  worker:
+    command:
+      - uv
+      - run
+      - arq
+      - --watch
+      - /app
+      - worker.settings.WorkerSettings
+      - --custom-log-dict
+      - worker.settings.ARQ_LOG_CONFIG
+    develop:
+      watch:
+        - action: sync
+          path: ./worker
+          target: /app/worker
+        - action: sync
+          path: ./api
+          target: /app/api
+        - action: rebuild
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
+        - action: rebuild
+          path: ./worker/Dockerfile

@@ -1,0 +1,43 @@
+[project]
+name = "interview-eval"
+version = "0.1.0"
+description = "Self-hosted interview evaluation platform"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "arq>=0.26.3,<1",
+  "asyncpg>=0.30.0,<1",
+  "azure-identity>=1.25.0,<2",
+  "azure-storage-blob>=12.27.0,<13",
+  "claude-agent-sdk>=0.1.0,<1",
+  "concurrent-log-handler>=0.9.28,<1",
+  "deepgram-sdk>=5.0.0,<6",
+  "fastapi>=0.116.0,<1",
+  "httpx>=0.28.0,<1",
+  "pydantic-settings>=2.10.0,<3",
+  "pyjwt>=2.10.0,<3",
+  "redis>=5.2.0,<6",
+  "structlog>=25.4.0,<26",
+  "supabase>=2.16.0,<3",
+  "tenacity>=9.1.0,<10",
+  "uvicorn[standard]>=0.35.0,<1",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4.0,<9",
+  "pytest-asyncio>=1.0.0,<2",
+  "ruff>=0.12.0,<1",
+]
+
+[tool.pytest.ini_options]
+addopts = "--basetemp=.pytest-tmp"
+testpaths = ["api/tests", "worker/tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
