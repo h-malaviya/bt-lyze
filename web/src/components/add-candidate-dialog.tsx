@@ -8,6 +8,7 @@ import {
   type Verdict,
 } from "../lib/api";
 import { useCandidateDraft } from "../hooks/use-candidate-draft";
+import { StudentSelector } from "./student-selector";
 
 interface AddCandidateDialogProps {
   draftOwnerId: string;
@@ -18,7 +19,7 @@ interface AddCandidateDialogProps {
   onSubmit: (candidate: CandidateSubmissionInput) => Promise<void>;
 }
 
-type UploadStatus = "idle" | "uploading" | "completed" | "failed";
+type UploadStatus = "idle" | "uploading" | "completed" | "failed" | "removing";
 
 function fileSize(sizeBytes: number): string {
   return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -145,9 +146,35 @@ export function AddCandidateDialog({
     }
   }
 
+  async function handleRemoveRecording() {
+    if (pending || uploadStatus === "removing") return;
+
+    const recordingToRemove = uploadedRecording;
+    uploadAttempt.current += 1;
+    uploadController.current?.abort();
+    uploadController.current = null;
+    setUploadError(null);
+
+    if (recordingToRemove) {
+      setUploadStatus("removing");
+      try {
+        await cleanupRecordingUpload(recordingToRemove);
+      } catch {
+        setUploadStatus("completed");
+        setUploadError("The recording could not be removed. Please try again.");
+        return;
+      }
+    }
+
+    updateDraft({ uploadedRecording: null });
+    setUploadStatus("idle");
+    setUploadProgress(0);
+    setSelectedFilename(null);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!uploadedRecording || !externalId.trim() || !category) return;
+    if (!uploadedRecording || !fullName.trim() || !externalId.trim() || !category) return;
     try {
       await onSubmit({
         full_name: fullName,
@@ -167,10 +194,10 @@ export function AddCandidateDialog({
     onClose();
   }
 
-  const nameLocked = pending || uploadStatus === "uploading" || uploadStatus === "completed";
+  const detailsLocked = pending || uploadStatus === "uploading" || uploadStatus === "removing";
+  const hasCandidateDetails = Boolean(fullName.trim() && externalId.trim());
   const canSubmit = Boolean(
-    fullName.trim()
-      && externalId.trim()
+    hasCandidateDetails
       && category
       && uploadStatus === "completed"
       && uploadedRecording,
@@ -193,15 +220,19 @@ export function AddCandidateDialog({
         </div>
 
         <form onSubmit={(event) => void handleSubmit(event)} className="space-y-5">
-          <label className="block text-sm font-semibold text-ink">
-            Candidate name <span className="text-ember">*</span>
-            <input autoFocus required maxLength={200} disabled={nameLocked} value={fullName} onChange={(event) => updateDraft({ fullName: event.target.value })} placeholder="Full name" className="mt-2 w-full rounded-xl border border-ink/15 px-4 py-3.5 outline-none transition focus:border-moss focus:ring-4 focus:ring-mint disabled:bg-fog disabled:text-ink/55" />
-          </label>
-
-          <label className="block text-sm font-semibold text-ink">
-            Candidate ID <span className="text-ember">*</span>
-            <input required maxLength={100} disabled={pending} value={externalId} onChange={(event) => updateDraft({ externalId: event.target.value })} placeholder="Enrollment number" className="mt-2 w-full rounded-xl border border-ink/15 px-4 py-3.5 outline-none transition focus:border-moss focus:ring-4 focus:ring-mint disabled:bg-fog" />
-          </label>
+          <StudentSelector
+            disabled={detailsLocked}
+            externalId={externalId}
+            fullName={fullName}
+            idDisabled={detailsLocked}
+            onExternalIdChange={(studentId) => updateDraft({ externalId: studentId })}
+            onQueryChange={(query) => updateDraft({ fullName: query })}
+            onSelect={(student) => updateDraft({
+              fullName: student.name,
+              externalId: student.id,
+              category: student.category,
+            })}
+          />
 
           <fieldset disabled={pending} className="m-0 border-0 p-0">
             <legend className="text-sm font-semibold text-ink">
@@ -258,9 +289,9 @@ export function AddCandidateDialog({
 
           <label className="block text-sm font-semibold text-ink">
             Interview recording <span className="text-ember">*</span>
-            <input type="file" accept="audio/*,video/*" disabled={pending || uploadStatus === "uploading" || !fullName.trim()} onChange={(event) => void handleRecordingChange(event)} className="mt-2 block w-full rounded-xl border border-dashed border-ink/20 bg-fog px-4 py-5 text-sm text-ink/65 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:font-bold file:text-moss disabled:opacity-50" />
+            <input type="file" accept="audio/*,video/*" disabled={pending || uploadStatus === "uploading" || uploadStatus === "removing" || !hasCandidateDetails} onChange={(event) => void handleRecordingChange(event)} className="mt-2 block w-full rounded-xl border border-dashed border-ink/20 bg-fog px-4 py-5 text-sm text-ink/65 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:font-bold file:text-moss disabled:opacity-50" />
             <span className="mt-2 block text-xs font-normal text-ink/45">
-              {fullName.trim() ? "Selecting a file starts the upload immediately." : "Enter the candidate name before selecting a recording."}
+              {hasCandidateDetails ? "Selecting a file starts the upload immediately." : "Enter the student name and ID before choosing a recording."}
             </span>
           </label>
 
@@ -268,9 +299,27 @@ export function AddCandidateDialog({
             <section aria-live="polite" className="rounded-xl border border-ink/10 bg-fog p-4">
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="min-w-0 truncate font-semibold text-ink">{selectedFilename}</span>
-                <span className={uploadStatus === "completed" ? "font-bold text-moss" : "font-bold text-ink/55"}>
-                  {uploadStatus === "completed" ? "Uploaded" : uploadStatus === "failed" ? "Failed" : `${uploadProgress}%`}
-                </span>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className={uploadStatus === "completed" ? "font-bold text-moss" : "font-bold text-ink/55"}>
+                    {uploadStatus === "completed"
+                      ? "Uploaded"
+                      : uploadStatus === "failed"
+                        ? "Failed"
+                        : uploadStatus === "removing"
+                          ? "Removing..."
+                          : `${uploadProgress}%`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void handleRemoveRecording()}
+                    disabled={pending || uploadStatus === "removing"}
+                    aria-label={`Remove ${selectedFilename ?? "recording"}`}
+                    title="Remove recording"
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-red-200 bg-white text-lg font-bold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    &times;
+                  </button>
+                </div>
               </div>
               <div role="progressbar" aria-label="Recording upload progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadProgress} className="mt-3 h-2 overflow-hidden rounded-full bg-ink/10">
                 <div className={`h-full rounded-full transition-[width] duration-200 ${uploadStatus === "failed" ? "bg-red-500" : "bg-moss"}`} style={{ width: `${uploadProgress}%` }} />

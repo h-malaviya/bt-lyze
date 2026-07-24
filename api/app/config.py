@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     log_max_bytes: int = 25 * 1024 * 1024
     log_backup_count: int = 5
     public_base_url: str = ""
-    allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+    allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173","https://exonerate-tucking-sprinkled.ngrok-free.dev"])
 
     @property
     def browser_publishable_key(self) -> str:

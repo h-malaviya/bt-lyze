@@ -10,21 +10,32 @@ import {
   type JobStage,
   type Recommendation,
   type ScoreBand,
+  type Verdict,
 } from "../lib/api";
 
 export function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [panelId, setPanelId] = useState("");
+  const [verdict, setVerdict] = useState<Verdict | "">("");
   const [stage, setStage] = useState<JobStage | "">("");
   const [recommendation, setRecommendation] = useState<Recommendation | "">("");
   const [scoreBand, setScoreBand] = useState<ScoreBand | "">("");
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const deferredSearch = useDeferredValue(search);
   const candidatesQuery = useQuery({
-    queryKey: ["admin-candidates", deferredSearch, panelId, stage, recommendation, scoreBand],
+    queryKey: [
+      "admin-candidates",
+      deferredSearch,
+      panelId,
+      verdict,
+      stage,
+      recommendation,
+      scoreBand,
+    ],
     queryFn: () => listAdminCandidates({
       ...(deferredSearch.trim() ? { search: deferredSearch } : {}),
       ...(panelId ? { panel_id: panelId } : {}),
+      ...(verdict ? { verdict } : {}),
       ...(stage ? { stage } : {}),
       ...(recommendation ? { recommendation } : {}),
       ...(scoreBand ? { score_band: scoreBand } : {}),
@@ -39,11 +50,14 @@ export function AdminDashboard() {
     needs_attention: 0,
   };
   const candidates = candidatesQuery.data?.items ?? [];
-  const filtersActive = Boolean(search || panelId || stage || recommendation || scoreBand);
+  const filtersActive = Boolean(
+    search || panelId || verdict || stage || recommendation || scoreBand,
+  );
 
   function clearFilters() {
     setSearch("");
     setPanelId("");
+    setVerdict("");
     setStage("");
     setRecommendation("");
     setScoreBand("");
@@ -63,13 +77,20 @@ export function AdminDashboard() {
       </section>
 
       <section className="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-lift">
-        <div className="grid gap-3 border-b border-ink/10 p-4 lg:grid-cols-[minmax(220px,1fr)_200px_170px_180px_160px_auto]">
+        <div className="grid gap-3 border-b border-ink/10 p-4 lg:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_180px_160px_160px_180px_150px_auto]">
           <label className="sr-only" htmlFor="admin-search">Search candidates</label>
           <input id="admin-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search candidates, IDs, notes…" className="rounded-xl border border-ink/10 bg-fog px-4 py-3 text-sm outline-none focus:border-moss focus:ring-4 focus:ring-mint" />
           <label className="sr-only" htmlFor="admin-panel-filter">Filter by panel</label>
           <select id="admin-panel-filter" value={panelId} onChange={(event) => setPanelId(event.target.value)} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/65 outline-none focus:border-moss">
             <option value="">All panels</option>
             {candidatesQuery.data?.panels.map((panel) => <option key={panel.id} value={panel.id}>{panel.name}</option>)}
+          </select>
+          <label className="sr-only" htmlFor="admin-verdict-filter">Filter by panel verdict</label>
+          <select id="admin-verdict-filter" value={verdict} onChange={(event) => setVerdict(event.target.value as Verdict | "")} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/65 outline-none focus:border-moss">
+            <option value="">All panel verdicts</option>
+            <option value="selected">Selected</option>
+            <option value="not_decided">Not decided</option>
+            <option value="not_selected">Not selected</option>
           </select>
           <label className="sr-only" htmlFor="admin-stage-filter">Filter by stage</label>
           <select id="admin-stage-filter" value={stage} onChange={(event) => setStage(event.target.value as JobStage | "")} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/65 outline-none focus:border-moss">
@@ -91,10 +112,8 @@ export function AdminDashboard() {
           <label className="sr-only" htmlFor="admin-score-filter">Filter by overall score</label>
           <select id="admin-score-filter" value={scoreBand} onChange={(event) => setScoreBand(event.target.value as ScoreBand | "")} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/65 outline-none focus:border-moss">
             <option value="">All scores</option>
-            <option value="8_to_10">8.0–10.0</option>
-            <option value="6_to_7_99">6.0–7.9</option>
-            <option value="4_to_5_99">4.0–5.9</option>
-            <option value="0_to_3_99">Below 4.0</option>
+            <option value="4_to_5">4–5</option>
+            <option value="1_to_2">1–2</option>
             <option value="unscored">Not scored</option>
           </select>
           <button type="button" onClick={clearFilters} disabled={!filtersActive} className="rounded-xl border border-ink/10 px-4 py-3 text-sm font-bold text-ink/60 transition hover:bg-fog disabled:opacity-35">Clear</button>

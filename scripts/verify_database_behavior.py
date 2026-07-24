@@ -109,15 +109,22 @@ async def run() -> int:
             """
             insert into public.evaluations (
               recording_id, overall_score, scores, summary, prompt_version, recommendation
-            ) values ($1, 8.0, $2::jsonb, 'Strong systems reasoning.', 'rubric_v1', 'selected')
+            ) values ($1, 4, $2::jsonb, 'Strong systems reasoning.', 'rubric_v1', 'selected')
             """,
             recording_id,
             json.dumps(
                 {
-                    "technical": {"score": 8, "rationale": "Strong"},
-                    "communication": {"score": 8, "rationale": "Clear"},
-                    "problem_solving": {"score": 8, "rationale": "Methodical"},
-                    "culture": {"score": 8, "rationale": "Collaborative"},
+                    "project_deep_dive": {"score": 4, "rationale": "Strong ownership"},
+                    "fundamentals": {"score": 4, "rationale": "Strong core knowledge"},
+                    "live_problem": {"score": 4, "rationale": "Methodical reasoning"},
+                    "learning_ability_and_trends": {
+                        "score": 4,
+                        "rationale": "Applied recent learning",
+                    },
+                    "candidate_questions": {
+                        "score": 4,
+                        "rationale": "Asked relevant questions",
+                    },
                 }
             ),
         )

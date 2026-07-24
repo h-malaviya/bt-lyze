@@ -49,7 +49,7 @@ function CandidateRow({ candidate }: { candidate: Candidate }) {
           <span>{new Date(candidate.created_at).toLocaleDateString()}</span>
           <span>{candidate.category === "ai_ml" ? "AI/ML" : candidate.category === "full_stack_engineer" ? "Full Stack Engineer" : "Category not assigned"}</span>
           <span>{candidate.verdict ? verdictLabels[candidate.verdict] : "Verdict pending"}</span>
-          {candidate.overall_score !== null && <span className="font-bold text-moss">Score {candidate.overall_score.toFixed(1)}</span>}
+          {candidate.overall_score !== null && <span className="font-bold text-moss">Score {Math.round(candidate.overall_score)}/5</span>}
         </div>
         {candidate.notes && <p className="mb-0 mt-2 line-clamp-2 text-sm text-ink/55">{candidate.notes}</p>}
       </div>

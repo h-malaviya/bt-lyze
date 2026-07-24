@@ -10,12 +10,17 @@ from api.app.config import Settings, get_settings
 from api.app.schemas.admin import (
     AdminCandidateDetail,
     AdminCandidateListResponse,
+    AdminRecordingPlayback,
     Recommendation,
     ScoreBand,
 )
 from api.app.schemas.auth import UserRole
-from api.app.schemas.candidates import JobStage
+from api.app.schemas.candidates import JobStage, Verdict
 from api.app.services.admin_candidates import get_admin_candidate, list_admin_candidates
+from api.app.services.admin_recordings import (
+    RecordingPlaybackUnavailableError,
+    get_admin_recording_playback,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 logger = structlog.get_logger()
@@ -35,6 +40,7 @@ async def list_admin_candidates_route(
     settings: Annotated[Settings, Depends(get_settings)],
     search: Annotated[str | None, Query(max_length=200)] = None,
     panel_id: Annotated[UUID | None, Query()] = None,
+    verdict: Annotated[Verdict | None, Query()] = None,
     stage: Annotated[JobStage | None, Query()] = None,
     recommendation: Annotated[Recommendation | None, Query()] = None,
     score_band: Annotated[ScoreBand | None, Query()] = None,
@@ -47,6 +53,7 @@ async def list_admin_candidates_route(
             settings,
             search,
             panel_id,
+            verdict,
             stage,
             recommendation,
             score_band,
@@ -95,3 +102,40 @@ async def get_admin_candidate_route(
         candidate_id=str(candidate_id),
     )
     return candidate
+
+
+@router.get(
+    "/recordings/{recording_id}/playback",
+    response_model=AdminRecordingPlayback,
+)
+async def get_admin_recording_playback_route(
+    recording_id: UUID,
+    current_user: CurrentUserDependency,
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AdminRecordingPlayback:
+    _require_admin(current_user)
+    try:
+        playback = await get_admin_recording_playback(settings, recording_id)
+    except (
+        asyncpg.PostgresError,
+        OSError,
+        TimeoutError,
+        RecordingPlaybackUnavailableError,
+    ) as exc:
+        logger.exception(
+            "admin_recording_playback_failed",
+            admin_user_id=str(current_user.id),
+            recording_id=str(recording_id),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Recording playback could not be prepared. Please try again.",
+        ) from exc
+    if playback is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
+    logger.info(
+        "admin_recording_playback_loaded",
+        admin_user_id=str(current_user.id),
+        recording_id=str(recording_id),
+    )
+    return playback

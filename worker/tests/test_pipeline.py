@@ -40,10 +40,16 @@ DEEPGRAM_RESPONSE = {
 def evaluation() -> EvaluationResult:
     return EvaluationResult.model_validate(
         {
-            "overall_score": 8,
+            "overall_score": 4,
             "scores": {
-                key: {"score": 8, "rationale": "Evidence"}
-                for key in ["technical", "communication", "problem_solving", "culture"]
+                key: {"score": 4, "rationale": "Evidence"}
+                for key in [
+                    "project_deep_dive",
+                    "fundamentals",
+                    "live_problem",
+                    "learning_ability_and_trends",
+                    "candidate_questions",
+                ]
             },
             "summary": "Strong interview",
             "strengths": ["Clear reasoning"],

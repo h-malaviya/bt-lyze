@@ -1,0 +1,144 @@
+import type { CandidateCategory } from "../lib/api";
+
+export interface Student {
+  id: string;
+  name: string;
+  category: CandidateCategory;
+}
+
+type StudentRow = readonly [name: string, id: string];
+
+const AI_ML_STUDENTS = [
+  ["KOTAK HARMI HIMANSHUBHAI", "23CEUOG074"],
+  ["SHETA DARSHAN PARESHBHAI", "23ITUOS123"],
+  ["VAISHNAV SHUBHAM JITENDRABHAI", "23CEUBS158"],
+  ["DESAI MOKSH HEMANSHU", "23CEUOZ032"],
+  ["JAVIA ZEEL ATULBHAI", "23CEUOS059"],
+  ["VAGHASIYA TILAK KAMLESHBHAI", "23ITUOS143"],
+  ["TANDEL SARTHAK MAHESHBHAI", "23ITUOS131"],
+  ["MANKANI VANSH HIRALAL", "23ITUOS071"],
+  ["SUREJA VISHV PRAVINBHAI", "23CEUOZ149"],
+  ["MORADIYA AMAN SHAILESHBHAI", "24CEUOS911"],
+  ["HARSHIT MANISHBHAI MEHTA", "24CEUOS905"],
+  ["LATHIYA SHUBHAM DIPAKBHAI", "23CEUBG080"],
+  ["RANK HARSH MANISHBHAI", "23CEUOG131"],
+  ["CHIKHALIYA JANHAVI DIPAKBHAI", "23ITUOS021"],
+  ["CHALODIYA BHARGAV RAJUBHAI", "23CEUOS015"],
+  ["CHANDEGARA PARTH SHAILESHBHAI", "24CEUBS902"],
+  ["VARIYA GHANSHYAM NARESHBHAI", "23CEUOG160"],
+  ["JOSHI TAPAN NITESHBHAI", "24ITUOS906"],
+  ["GANGANI KALPESH ARVINDBHAI", "23CEUOG047"],
+  ["KOYANI GAURAV PRATIKBHAI", "23CEUOG076"],
+  ["NAKRANI OM ANILBHAI", "23ITUOS082"],
+  ["MEHTA RUDRA VISHAL", "23ITUOZ077"],
+  ["THUMMAR JAY RAJESHBHAI", "23ITUOS135"],
+  ["PRAJAPATI RUDRA NIRALKUMAR", "23CEUBG128"],
+  ["JAVIA MADHAV RAKESHBHAI", "23CEUOZ058"],
+  ["DONGA VRAJ KANTIBHAI", "23ITUOS029"],
+  ["KHUSHALI CHANV", "23ITUOZ061"],
+  ["PATEL MAITREY HARESHBHAI", "23CEUOZ113"],
+  ["VAGHANI SHUBHAM RAKESHBHAI", "23CEUOS155"],
+  ["VAGHASIYA JEEL MUKESHBHAI", "23ITUOS141"],
+  ["MAKANI DHRUVIKBHAI JITENDRABHAI", "23ITUOS068"],
+  ["CHAUHAN OM VIJAYBHAI", "24CEUBG903"],
+  ["GADOYA VANSHIT AMIT", "23CEUOZ043"],
+  ["PRIYANSHI SANJAYKUMAR PATEL", "25MTPOS015"],
+  ["DAVE KAVAN VISHNU", "23CEUOG031"],
+  ["BARAIYA NIHAR PRAFULBHAI", "23CEUOZ007"],
+  ["GOSWAMI PRIYA HARESHBHARTHI", "23CEUBG054"],
+  ["DARJI VED KALPESHKUMAR", "24ITUBS903"],
+  ["JADAV APOORVA BALDEVBHAI", "24CEUBS906"],
+  ["PATEL SHREY BHAVESHBHAI", "23ITUOS105"],
+  ["SITAPARA HET AMITBHAI", "23CEUOZ144"],
+  ["PRAJAPATI HEMABEN DINESHBHAI", "23ITUBS108"],
+  ["RANA PRATHAM MANISHKUMAR", "23ITUOZ111"],
+  ["SANANDIYA YASH HARESHBHAI", "23CEUOZ139"],
+  ["KHATRA UTSAV BIPINBHAI", "23ITUOZ059"],
+  ["KUNDALIA DHAIRYA AMIT", "23ITUOZ062"],
+  ["GAJERA PARIMAL LALJIBHAI", "23CEUOS044"],
+  ["VIRAPARIYA KUNJAL NITESHBHAI", "23CEUOF166"],
+  ["GOL SMIT DINESHBHAI", "23ITUOZ038"],
+  ["TELANG MADHURYA PRASAD", "23ITUOZ133"],
+  ["PATEL YASH VASANTBHAI", "25MTPOS014"],
+  ["CHADANIYA ANSH KANTILAL", "23ITUOS012"],
+  ["YAGNADEEPSINH GHANSHYAMSINH SARVAIYA", "23ITUOZ147"],
+  ["KAPADIYA OM JIVANBHAI", "23CEUOS070"],
+  ["Vahora Mohammadatik Varisahemad", "23CEUOZ156"],
+  ["AMBALIYA JILLS RATILAL", "23CEUOZ002"],
+  ["JAVIYA MANAN RAMESHBHAI", "23CEUOZ060"],
+  ["PATEL SHREYAS JAYESHKUMAR", "23CEUOZ119"],
+  ["PATEL RISHI AJAY", "23ITUOS104"],
+  ["PATEL SHREYASKUMAR JITENDRABHAI", "23CEUOS120"],
+  ["MANVAR CHIRAG CHAMANBHAI", "24CEUCS908"],
+  ["ANTANI HETAV DIGANT", "23ITUOZ003"],
+  ["RANGANI NIMIT CHANDUBHAI", "23CEUOS130"],
+  ["BHALODIYA HIT GAUTAMBHAI", "23ITUOS008"],
+  ["BODAR RONAK NARANBHAI", "23ITUOS011"],
+  ["KANAIYA MAYANK SANDIPBHAI", "23ITUOS050"],
+  ["BABARIYA KAUSHAL VINODBHAI", "23ITUOS004"],
+  ["JARSANIYA KUNJKUMAR BHARATBHAI", "23ITUOS044"],
+  ["GODHAVIA KHUSHAL BHASKARBHAI", "23ITUOZ036"],
+] as const satisfies readonly StudentRow[];
+
+const SOFTWARE_STUDENTS = [
+  ["RAVAL JAIMIN JAYSUKHBHAI", "23CEUBG136"],
+  ["JOSHI RISHI PARESHKUMAR", "24CEUOS907"],
+  ["BHUNGALIYA HARSHIL DINESHBHAI", "23ITUOS010"],
+  ["TANDEL MANSI JAYESHKUMAR", "23CEUBS150"],
+  ["OJAS TIKKU", "22CEUOS148"],
+  ["HANSORA RUSHIBHAI RAJESHBHAI", "23ITUBS042"],
+  ["SAKARIYA YUG JAGDISHBHAI", "23ITUOS115"],
+  ["DHAMSANIYA PRINCEKUMAR DHIRENDRABHAI", "23ITUOZ026"],
+  ["PATEL NEH ANILBHAI", "23CEUTG114"],
+  ["KADCHHA NEEL DINESHKUMAR", "23ITUOS049"],
+  ["DADHANIYA KUNJ GOPALBHAI", "23ITUOZ024"],
+  ["VAGHASIYA DEV RAJENDRABHAI", "23ITUOS140"],
+  ["PADALIYA ANKUR HITENDRABHAI", "23ITUOS085"],
+  ["CHAUDHARY AMIT BHANWARLAL", "23ITUOZ016"],
+  ["KANANI DHRUV PARESHBHAI", "23ITUOZ051"],
+  ["HALPATI JAYMIN UKABHAI", "23ITUTS041"],
+  ["GAJERA HET JITENDRABHAI", "23ITUOS148"],
+  ["PATEL BHAVYA RAKESHBHAI", "23ITUTS091"],
+  ["RIDHAM Y PATEL", "24CEUTG913"],
+] as const satisfies readonly StudentRow[];
+
+function withCategory(
+  rows: readonly StudentRow[],
+  category: CandidateCategory,
+): Student[] {
+  return rows.map(([name, id]) => ({ name, id, category }));
+}
+
+export const STUDENTS: readonly Student[] = [
+  ...withCategory(AI_ML_STUDENTS, "ai_ml"),
+  ...withCategory(SOFTWARE_STUDENTS, "full_stack_engineer"),
+];
+
+function normalizeSearchValue(value: string): string {
+  return value.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+}
+
+export function findStudentById(id: string): Student | undefined {
+  return STUDENTS.find((student) => student.id === id);
+}
+
+export function searchStudents(query: string, limit = 7): Student[] {
+  const normalizedQuery = normalizeSearchValue(query);
+  if (!normalizedQuery) return [];
+  const terms = normalizedQuery.split(" ");
+
+  return STUDENTS
+    .filter((student) => {
+      const searchable = normalizeSearchValue(`${student.name} ${student.id}`);
+      return terms.every((term) => searchable.includes(term));
+    })
+    .sort((left, right) => {
+      const leftName = normalizeSearchValue(left.name);
+      const rightName = normalizeSearchValue(right.name);
+      const leftStartsQuery = leftName.startsWith(normalizedQuery);
+      const rightStartsQuery = rightName.startsWith(normalizedQuery);
+      if (leftStartsQuery !== rightStartsQuery) return leftStartsQuery ? -1 : 1;
+      return left.name.localeCompare(right.name);
+    })
+    .slice(0, limit);
+}

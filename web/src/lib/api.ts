@@ -13,7 +13,7 @@ export type JobStage =
   | "failed";
 export type Recommendation = "selected" | "not_selected" | "borderline";
 export type StorageProvider = "supabase" | "azure";
-export type ScoreBand = "8_to_10" | "6_to_7_99" | "4_to_5_99" | "0_to_3_99" | "unscored";
+export type ScoreBand = "4_to_5" | "1_to_2" | "unscored";
 
 export interface CurrentUser {
   id: string;
@@ -152,9 +152,15 @@ export interface AdminCandidateDetail {
 export interface AdminCandidateFilters {
   search?: string;
   panel_id?: string;
+  verdict?: Verdict;
   stage?: JobStage;
   recommendation?: Recommendation;
   score_band?: ScoreBand;
+}
+
+export interface AdminRecordingPlayback {
+  url: string;
+  expires_at: string;
 }
 
 export interface AdminCandidateListResponse {
@@ -239,6 +245,7 @@ export async function listAdminCandidates(
   const parameters = new URLSearchParams();
   if (filters.search?.trim()) parameters.set("search", filters.search.trim());
   if (filters.panel_id) parameters.set("panel_id", filters.panel_id);
+  if (filters.verdict) parameters.set("verdict", filters.verdict);
   if (filters.stage) parameters.set("stage", filters.stage);
   if (filters.recommendation) parameters.set("recommendation", filters.recommendation);
   if (filters.score_band) parameters.set("score_band", filters.score_band);
@@ -250,6 +257,13 @@ export async function listAdminCandidates(
 export async function getAdminCandidate(candidateId: string): Promise<AdminCandidateDetail> {
   const response = await authorizedFetch(`/api/admin/candidates/${candidateId}`);
   return (await response.json()) as AdminCandidateDetail;
+}
+
+export async function getAdminRecordingPlayback(
+  recordingId: string,
+): Promise<AdminRecordingPlayback> {
+  const response = await authorizedFetch(`/api/admin/recordings/${recordingId}/playback`);
+  return (await response.json()) as AdminRecordingPlayback;
 }
 
 const maximumRecordingBytes = 500 * 1024 * 1024;

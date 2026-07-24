@@ -5,6 +5,8 @@ import {
   recommendationTone,
   stageLabels,
   stageTone,
+  verdictLabels,
+  verdictTone,
 } from "../lib/admin-display";
 
 interface AdminCandidateTableProps {
@@ -15,11 +17,12 @@ interface AdminCandidateTableProps {
 export function AdminCandidateTable({ candidates, onSelect }: AdminCandidateTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[900px] border-collapse text-left">
+      <table className="w-full min-w-[1050px] border-collapse text-left">
         <thead className="bg-fog text-xs uppercase tracking-[0.12em] text-ink/45">
           <tr>
             <th className="px-6 py-4 font-bold">Candidate</th>
             <th className="px-4 py-4 font-bold">Panel</th>
+            <th className="px-4 py-4 font-bold">Panel verdict</th>
             <th className="px-4 py-4 font-bold">Stage</th>
             <th className="px-4 py-4 font-bold">Score</th>
             <th className="px-4 py-4 font-bold">Recommendation</th>
@@ -41,12 +44,21 @@ export function AdminCandidateTable({ candidates, onSelect }: AdminCandidateTabl
               </td>
               <td className="px-4 py-4 text-sm font-semibold text-ink/65">{candidate.panel_name}</td>
               <td className="px-4 py-4">
+                {candidate.verdict ? (
+                  <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-bold ${verdictTone(candidate.verdict)}`}>
+                    {verdictLabels[candidate.verdict]}
+                  </span>
+                ) : <span className="text-sm text-ink/35">Pending</span>}
+              </td>
+              <td className="px-4 py-4">
                 <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-bold ${stageTone(candidate.stage)}`}>
                   {candidate.stage ? stageLabels[candidate.stage] : "No recording"}
                 </span>
               </td>
               <td className="px-4 py-4 text-sm font-bold text-moss">
-                {candidate.overall_score === null ? "—" : candidate.overall_score.toFixed(1)}
+                {candidate.overall_score === null
+                  ? "—"
+                  : `${Math.round(candidate.overall_score)}/5`}
               </td>
               <td className="px-4 py-4">
                 {candidate.recommendation ? (

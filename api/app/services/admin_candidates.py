@@ -19,7 +19,7 @@ from api.app.schemas.admin import (
     Recommendation,
     ScoreBand,
 )
-from api.app.schemas.candidates import JobStage
+from api.app.schemas.candidates import JobStage, Verdict
 
 _LATEST_RECORDINGS = """
 left join lateral (
@@ -45,17 +45,14 @@ where (
     or strpos(lower(candidates.id::text), lower($1)) > 0
   )
   and ($2::uuid is null or candidates.panel_id = $2)
-  and ($3::public.job_stage is null or latest_recording.stage = $3)
-  and ($4::text is null or current_evaluation.recommendation = $4)
+  and ($3::public.verdict is null or candidates.verdict = $3)
+  and ($4::public.job_stage is null or latest_recording.stage = $4)
+  and ($5::text is null or current_evaluation.recommendation = $5)
   and (
-    $5::text is null
-    or ($5 = '8_to_10' and current_evaluation.overall_score >= 8)
-    or ($5 = '6_to_7_99' and current_evaluation.overall_score >= 6
-        and current_evaluation.overall_score < 8)
-    or ($5 = '4_to_5_99' and current_evaluation.overall_score >= 4
-        and current_evaluation.overall_score < 6)
-    or ($5 = '0_to_3_99' and current_evaluation.overall_score < 4)
-    or ($5 = 'unscored' and current_evaluation.overall_score is null)
+    $6::text is null
+    or ($6 = '4_to_5' and current_evaluation.overall_score >= 4)
+    or ($6 = '1_to_2' and current_evaluation.overall_score between 1 and 2)
+    or ($6 = 'unscored' and current_evaluation.overall_score is null)
   )
 """
 
@@ -75,6 +72,7 @@ async def list_admin_candidates(
     settings: Settings,
     search: str | None,
     panel_id: UUID | None,
+    verdict: Verdict | None,
     stage: JobStage | None,
     recommendation: Recommendation | None,
     score_band: ScoreBand | None,
@@ -84,6 +82,7 @@ async def list_admin_candidates(
     filters = (
         search.strip() if search and search.strip() else None,
         panel_id,
+        verdict.value if verdict else None,
         stage.value if stage else None,
         recommendation,
         score_band,
@@ -110,7 +109,7 @@ async def list_admin_candidates(
             """
             + _LATEST_RECORDINGS
             + _FILTERS
-            + " order by candidates.created_at desc limit $6 offset $7",
+            + " order by candidates.created_at desc limit $7 offset $8",
             *filters,
             limit,
             offset,
