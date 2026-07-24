@@ -135,7 +135,7 @@ def test_admin_can_list_candidates_with_filters_and_metrics() -> None:
             new=AsyncMock(return_value=LIST_RESPONSE),
         ) as list_mock, TestClient(app) as client:
             response = client.get(
-                "/api/admin/candidates?search=Love&stage=completed"
+                "/api/admin/candidates?search=Love&verdict=selected&stage=completed"
                 "&recommendation=selected&score_band=4_to_5"
             )
     finally:
@@ -145,8 +145,9 @@ def test_admin_can_list_candidates_with_filters_and_metrics() -> None:
     assert response.json()["metrics"]["ready"] == 1
     assert response.json()["items"][0]["recommendation"] == "selected"
     assert list_mock.await_args.args[1] == "Love"
-    assert list_mock.await_args.args[3].value == "completed"
-    assert list_mock.await_args.args[5] == "4_to_5"
+    assert list_mock.await_args.args[3].value == "selected"
+    assert list_mock.await_args.args[4].value == "completed"
+    assert list_mock.await_args.args[6] == "4_to_5"
 
 
 def test_admin_can_load_complete_candidate_analysis() -> None:

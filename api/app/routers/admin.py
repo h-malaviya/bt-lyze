@@ -15,7 +15,7 @@ from api.app.schemas.admin import (
     ScoreBand,
 )
 from api.app.schemas.auth import UserRole
-from api.app.schemas.candidates import JobStage
+from api.app.schemas.candidates import JobStage, Verdict
 from api.app.services.admin_candidates import get_admin_candidate, list_admin_candidates
 from api.app.services.admin_recordings import (
     RecordingPlaybackUnavailableError,
@@ -40,6 +40,7 @@ async def list_admin_candidates_route(
     settings: Annotated[Settings, Depends(get_settings)],
     search: Annotated[str | None, Query(max_length=200)] = None,
     panel_id: Annotated[UUID | None, Query()] = None,
+    verdict: Annotated[Verdict | None, Query()] = None,
     stage: Annotated[JobStage | None, Query()] = None,
     recommendation: Annotated[Recommendation | None, Query()] = None,
     score_band: Annotated[ScoreBand | None, Query()] = None,
@@ -52,6 +53,7 @@ async def list_admin_candidates_route(
             settings,
             search,
             panel_id,
+            verdict,
             stage,
             recommendation,
             score_band,

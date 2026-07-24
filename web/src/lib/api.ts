@@ -13,7 +13,7 @@ export type JobStage =
   | "failed";
 export type Recommendation = "selected" | "not_selected" | "borderline";
 export type StorageProvider = "supabase" | "azure";
-export type ScoreBand = "4_to_5" | "3" | "1_to_2" | "unscored";
+export type ScoreBand = "4_to_5" | "1_to_2" | "unscored";
 
 export interface CurrentUser {
   id: string;
@@ -152,6 +152,7 @@ export interface AdminCandidateDetail {
 export interface AdminCandidateFilters {
   search?: string;
   panel_id?: string;
+  verdict?: Verdict;
   stage?: JobStage;
   recommendation?: Recommendation;
   score_band?: ScoreBand;
@@ -244,6 +245,7 @@ export async function listAdminCandidates(
   const parameters = new URLSearchParams();
   if (filters.search?.trim()) parameters.set("search", filters.search.trim());
   if (filters.panel_id) parameters.set("panel_id", filters.panel_id);
+  if (filters.verdict) parameters.set("verdict", filters.verdict);
   if (filters.stage) parameters.set("stage", filters.stage);
   if (filters.recommendation) parameters.set("recommendation", filters.recommendation);
   if (filters.score_band) parameters.set("score_band", filters.score_band);

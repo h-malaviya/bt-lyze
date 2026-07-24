@@ -40,6 +40,12 @@ export function recommendationTone(recommendation: Recommendation | null): strin
   return "bg-amber-50 text-amber-800";
 }
 
+export function verdictTone(verdict: Verdict | null): string {
+  if (verdict === "selected") return "bg-emerald-50 text-emerald-700";
+  if (verdict === "not_selected") return "bg-red-50 text-red-700";
+  return "bg-amber-50 text-amber-800";
+}
+
 export function formatBytes(bytes: number | null): string {
   if (bytes === null) return "Unknown size";
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;

@@ -1,4 +1,4 @@
-INTERVIEW_PROMPT_VERSION = "interview-v8"
+INTERVIEW_PROMPT_VERSION = "interview-v10"
 
 INTERVIEW_FLOW_RUBRIC = """
 Evaluation policy
@@ -11,14 +11,17 @@ context. Never give the candidate credit for an answer supplied by the interview
 attribution is genuinely ambiguous, use the more conservative interpretation and mention the
 limitation in the relevant rationale.
 
-Evaluate five equally weighted categories on a discrete scale from 1 through 5. Every category score
-and the overall score must be a whole number with no decimal. A score represents demonstrated
-evidence, not presumed potential. Prefer a decisive score of 1, 2, 4, or 5 when the evidence
-supports a clear judgment. Use 3 only when the evidence is genuinely mixed, contradictory, or too
-limited to choose confidently between 2 and 4. Calibrate every category independently before
-calculating the overall score. The overall score must be the arithmetic mean of the five category
-scores rounded to the nearest whole number, with an exact half rounded upward. Do not alter a
-category merely to make it agree with the overall impression.
+Evaluate five equally weighted categories using only the discrete scores 1, 2, 4, and 5. Every
+category score and the overall score must be one of those four integers. Score 3 is forbidden and
+invalid under all circumstances. A score represents demonstrated evidence, not presumed potential.
+When evidence is mixed between 2 and 4, choose 4 when it demonstrates workable junior-level ability
+and coachability; choose 2 only when material gaps outweigh the workable evidence. Calibrate every
+category independently before calculating the overall score. Compute the arithmetic mean of the five
+category scores, then map it as follows: a mean below 1.5 becomes 1; a mean from 1.5 up to but not
+including 2.5 becomes 2; a mean from 2.5 up to but not including 4.5 becomes 4; and a mean of 4.5 or
+higher becomes 5. This preserves the earlier nearest-whole-number approach while mapping the now
+forbidden score 3 upward to 4. Do not alter a category merely to make it agree with the overall
+impression.
 
 Calibrate every score for an intern or junior-level hiring decision. Judge the candidate against
 the expected foundations, reasoning, learning potential, and coachability for that level rather
@@ -28,7 +31,12 @@ or incomplete answers must not cause a disproportionate score reduction when the
 shows sound foundations, honest reasoning, self-correction, and an ability to learn. Reduce scores
 substantially only when errors reveal a repeated pattern, a serious gap in core fundamentals,
 fabricated or inflated experience, unsafe judgment, or an inability to reason through guidance. Do
-not invent positive evidence or award points for skills that were not demonstrated.
+not invent positive evidence or award points for skills that were not demonstrated. Apply this
+junior-level calibration consistently to every candidate. Do not raise or lower standards based on
+city tier, school prestige, accent, socioeconomic background, or other non-performance proxies.
+Distinguish an incorrect answer from a skill the interviewer never tested. Do not treat unasked
+topics as demonstrated weaknesses; state that they were not tested and use a targeted follow-up or
+lower confidence instead of a disproportionate score reduction.
 
 Project deep-dive
 
@@ -42,9 +50,8 @@ credit for others' work, and an inability to explain central implementation deta
 
 A score of 1 indicates no usable project evidence, implausible ownership claims, or inability to
 explain what was built. A score of 2 indicates a shallow overview with major gaps around personal
-contribution, implementation, debugging, or lessons learned. A score of 3 is reserved for genuinely
-mixed or limited evidence that prevents a confident choice between 2 and 4. A score of 4 indicates
-clear ownership, solid end-to-end understanding, specific debugging evidence, and thoughtful
+contribution, implementation, debugging, or lessons learned. A score of 4 indicates clear
+ownership, solid end-to-end understanding, specific debugging evidence, and thoughtful
 reflection appropriate for a junior candidate. A score of 5 requires exceptional junior-level
 command, precise ownership boundaries, nuanced decisions, deep learning from failures, and unusually
 strong retrospective judgment.
@@ -61,9 +68,8 @@ understanding, hand-waving on central concepts, and answers that ignore stated r
 
 A score of 1 indicates no usable evidence, fundamental misunderstanding, or mostly incorrect
 answers. A score of 2 indicates fragments of relevant knowledge but major gaps or inability to
-explain core concepts. A score of 3 is reserved for genuinely mixed or limited evidence that
-prevents a confident choice between 2 and 4. A score of 4 indicates correct, relevant junior-level
-foundations with useful implementation detail and awareness of common tradeoffs. A score of 5
+explain core concepts. A score of 4 indicates correct, relevant junior-level foundations with useful
+implementation detail and awareness of common tradeoffs. A score of 5
 requires exceptional junior-level command, precise reasoning, nuanced tradeoffs, and anticipation
 of meaningful failure modes.
 
@@ -79,9 +85,8 @@ interviewer.
 
 A score of 1 indicates no coherent approach or reasoning that would predictably make the problem
 worse. A score of 2 indicates an ad hoc approach with major unstated assumptions and little
-validation. A score of 3 is reserved for genuinely mixed or limited reasoning that prevents a
-confident choice between 2 and 4. A score of 4 indicates a workable, systematic junior-level
-approach with sensible decomposition, validation, and awareness of meaningful edge cases. A score
+validation. A score of 4 indicates a workable, systematic junior-level approach with sensible
+decomposition, validation, and awareness of meaningful edge cases. A score
 of 5 requires exceptional junior-level judgment, creative but practical alternatives, strong
 prioritization, and a robust verification plan.
 
@@ -98,9 +103,8 @@ understanding.
 
 A score of 1 indicates no usable evidence of learning effort or an approach based mainly on passive
 exposure. A score of 2 indicates some curiosity but an unstructured process, shallow trend
-awareness, or no concrete application. A score of 3 is reserved for genuinely mixed or limited
-evidence that prevents a confident choice between 2 and 4. A score of 4 indicates recent
-self-directed learning supported by clear methods, practical application, feedback, and thoughtful
+awareness, or no concrete application. A score of 4 indicates recent self-directed learning
+supported by clear methods, practical application, feedback, and thoughtful
 engagement with trends.
 A score of 5 requires exceptional learning agility, rigorous source selection, durable skill
 acquisition, repeated application, and strong self-correction.
@@ -117,9 +121,8 @@ opportunity to ask questions, use the available evidence conservatively and stat
 
 A score of 1 indicates that a clear opportunity was provided but the candidate asked no meaningful
 or role-related questions. A score of 2 indicates generic questions with little connection to the
-team, work, or conversation. A score of 3 is reserved for genuinely mixed or limited evidence that
-prevents a confident choice between 2 and 4. A score of 4 indicates thoughtful, specific questions
-about the stack, review practices, shipping, expectations, or challenges. A score of 5 requires
+team, work, or conversation. A score of 4 indicates thoughtful, specific questions about the stack,
+review practices, shipping, expectations, or challenges. A score of 5 requires
 unusually perceptive questions that expose important tradeoffs, deepen the discussion, and show
 mature understanding of how to contribute.
 
@@ -157,11 +160,11 @@ Recommendation policy
 
 Use "selected" when the overall score is 4 or 5, the evidence is sufficiently broad for the
 interview, and there is no severe concern that would make proceeding irresponsible. Use
-"borderline" when the overall score is 3, when evidence is promising but too limited for a confident
-decision, or when a strong overall performance includes one material concern that warrants targeted
-follow-up. Use "not_selected" when the overall score is 1 or 2 or when a severe, directly evidenced
-concern outweighs the numeric average. When a severe concern changes the recommendation, explain it
-plainly in the summary and concerns. Never change category scores solely to force them into the
+"borderline" when evidence is promising but too limited for a confident decision or when a strong
+overall performance includes one material concern that warrants targeted follow-up. Use
+"not_selected" when the overall score is 1 or 2 or when a severe, directly evidenced concern
+outweighs the numeric result. When a severe concern changes the recommendation, explain it plainly
+in the summary and concerns. Never change category scores solely to force them into the
 recommendation threshold.
 
 Output discipline
@@ -171,7 +174,7 @@ Scores must be JSON numbers, not strings. Every category rationale and the summa
 required Markdown bullet-list format and obey its point and word limits. Every item in the strengths
 and concerns arrays must begin with "- " and obey its item and word limits. Do not use any other
 Markdown. The recommendation must be exactly one of the allowed enum values.
-Before returning, verify that every score is a whole number from 1 through 5, the overall score
-matches the rounded arithmetic mean, 3 is used only for genuinely mixed or uncertain evidence, every
-rationale contains evidence, and the recommendation follows the policy above.
+Before returning, verify that every category score and the overall score is exactly 1, 2, 4, or 5,
+that no score is 3 or a decimal, that the overall score follows the required mean mapping, that
+every rationale contains evidence, and that the recommendation follows the policy above.
 """.strip()

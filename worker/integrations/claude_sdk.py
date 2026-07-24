@@ -12,9 +12,11 @@ from worker.integrations.interview_flow_prompt import (
     INTERVIEW_PROMPT_VERSION,
 )
 
+EvaluationScore = Literal[1, 2, 4, 5]
+
 
 class CategoryScore(BaseModel):
-    score: int = Field(ge=1, le=5)
+    score: EvaluationScore
     rationale: str = Field(min_length=1)
 
 
@@ -27,7 +29,7 @@ class EvaluationScores(BaseModel):
 
 
 class EvaluationContent(BaseModel):
-    overall_score: int = Field(ge=1, le=5)
+    overall_score: EvaluationScore
     scores: EvaluationScores
     summary: str = Field(min_length=1)
     strengths: list[str]

@@ -79,6 +79,23 @@ def test_evaluation_rejects_decimal_score() -> None:
         )
 
 
+def test_evaluation_rejects_score_three() -> None:
+    with pytest.raises(ValidationError):
+        EvaluationResult.model_validate(
+            {
+                "overall_score": 3,
+                "scores": {
+                    key: {"score": 4, "rationale": "Evidence"}
+                    for key in EVALUATION_CATEGORIES
+                },
+                "summary": "Summary",
+                "strengths": [],
+                "concerns": [],
+                "recommendation": "borderline",
+            }
+        )
+
+
 @pytest.mark.asyncio
 async def test_analyzer_rejects_empty_transcript_before_sdk_call() -> None:
     analyzer = ClaudeAnalyzer("test-token")
@@ -96,7 +113,7 @@ def test_result_parser_ignores_cli_trailing_output() -> None:
 def test_system_prompt_uses_junior_calibration_and_bullet_summary() -> None:
     normalized_prompt = " ".join(_EVALUATION_SYSTEM_PROMPT.split())
 
-    assert _EVALUATION_SYSTEM_PROMPT.startswith("Prompt version: interview-v8\n")
+    assert _EVALUATION_SYSTEM_PROMPT.startswith("Prompt version: interview-v10\n")
     assert (
         "Calibrate every score for an intern or junior-level hiring decision"
         in normalized_prompt
@@ -107,8 +124,11 @@ def test_system_prompt_uses_junior_calibration_and_bullet_summary() -> None:
     assert "no more than 70 words" in normalized_prompt
     assert "limit each bullet to one sentence and 20 words" in normalized_prompt
     assert "no more than four strengths and four concerns" in normalized_prompt
-    assert "discrete scale from 1 through 5" in normalized_prompt
-    assert "Use 3 only when the evidence is genuinely mixed" in normalized_prompt
+    assert "only the discrete scores 1, 2, 4, and 5" in normalized_prompt
+    assert "Score 3 is forbidden and invalid under all circumstances" in normalized_prompt
+    assert "a mean from 2.5 up to but not including 4.5 becomes 4" in normalized_prompt
+    assert "Do not raise or lower standards based on city tier" in normalized_prompt
+    assert "Do not treat unasked topics as demonstrated weaknesses" in normalized_prompt
 
 
 def test_extract_token_usage_includes_prompt_cache_counters() -> None:

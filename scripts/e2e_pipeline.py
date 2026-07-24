@@ -239,12 +239,7 @@ async def run() -> int:
             admin_token = admin_sign_in.json()["access_token"]
             admin_headers = {"Authorization": f"Bearer {admin_token}"}
             overall_score = float(pipeline["overall_score"])
-            if overall_score >= 4:
-                score_band = "4_to_5"
-            elif overall_score == 3:
-                score_band = "3"
-            else:
-                score_band = "1_to_2"
+            score_band = "4_to_5" if overall_score >= 4 else "1_to_2"
 
             admin_list = await client.get(
                 f"{LOCAL_APP_URL}/api/admin/candidates",

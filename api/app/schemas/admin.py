@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from api.app.schemas.candidates import CandidateCategory, JobStage, StorageProvider, Verdict
 
 Recommendation = Literal["selected", "not_selected", "borderline"]
-ScoreBand = Literal["4_to_5", "3", "1_to_2", "unscored"]
+ScoreBand = Literal["4_to_5", "1_to_2", "unscored"]
 
 
 class AdminMetrics(BaseModel):

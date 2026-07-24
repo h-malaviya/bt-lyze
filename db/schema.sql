@@ -153,7 +153,7 @@ create table if not exists public.evaluations (
   recording_id uuid not null references public.recordings(id) on delete cascade,
   version integer not null default 1 check (version > 0),
   is_current boolean not null default true,
-  overall_score smallint check (overall_score between 1 and 5),
+  overall_score smallint check (overall_score in (1, 2, 4, 5)),
   scores jsonb not null,
   summary text not null,
   strengths text[] not null default '{}',
@@ -165,6 +165,14 @@ create table if not exists public.evaluations (
   created_at timestamptz not null default now(),
   unique (recording_id, version)
 );
+
+alter table public.evaluations
+  drop constraint if exists evaluations_overall_score_check;
+alter table public.evaluations
+  drop constraint if exists evaluations_overall_score_allowed;
+alter table public.evaluations
+  add constraint evaluations_overall_score_allowed
+  check (overall_score in (1, 2, 4, 5)) not valid;
 
 create table if not exists public.job_events (
   id bigserial primary key,
